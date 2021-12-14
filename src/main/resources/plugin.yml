@@ -1,0 +1,4 @@
+name: TMC ServerHealthLogger
+version: '${project.version}'
+main: pranjalrastogi.tmcserverhealthlogger.TMCServerHealthLogger
+api-version: 1.18
