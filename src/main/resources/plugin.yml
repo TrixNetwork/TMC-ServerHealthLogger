@@ -2,3 +2,12 @@ name: TMCServerHealthLogger
 version: '${project.version}'
 main: pranjalrastogi.tmcserverhealthlogger.TMCServerHealthLogger
 api-version: 1.18
+commands:
+  startlogging:
+    description: Start logging
+    usage: /startlogging
+    permission: op
+  stoplogging:
+    description: Stop logging
+    usage: /stoplogging
+    permission: op
