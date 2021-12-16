@@ -14,7 +14,7 @@ public final class TMCServerHealthLogger extends JavaPlugin {
         this.getCommand("stoplogging").setExecutor(new StopLoggingCommand(this, loggingManager));
 
         long initTime = 0L;
-        long gap = (long) (20 * 10);
+        long gap = (long) (20 * 120);
         loggingManager.getLog_runner().runTaskTimer(this, initTime, gap);
         this.getLogger().info("Plugin enabled, started logger.");
     }

@@ -1,2 +1,11 @@
 # mongodb connection uri
-uri:
+uri: ""
+
+# server name
+server_name: ""
+
+# Pterodactyl data
+petro:
+  base_url: ""
+  server_id: ""
+  api_key: ""
