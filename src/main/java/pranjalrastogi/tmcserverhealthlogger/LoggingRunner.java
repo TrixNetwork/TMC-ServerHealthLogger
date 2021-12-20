@@ -45,7 +45,7 @@ public class LoggingRunner extends BukkitRunnable {
         DecimalFormat df = new DecimalFormat("#.##");
 
         // get TPS
-        double TPS = Double.parseDouble(df.format(this.plugin.getServer().getTPS()[0]));
+        float TPS = Float.parseFloat(df.format(this.plugin.getServer().getTPS()[0]));
 
         // get Memory
         Runtime r = Runtime.getRuntime();
@@ -81,7 +81,7 @@ public class LoggingRunner extends BukkitRunnable {
             }
         }
         catch (IOException e){
-            this.plugin.getLogger().info("Error, returning. Message:\n" + e.getMessage());
+            this.plugin.getLogger().info("API Error, returning. Message:\n" + e.getMessage());
             return;
         }
 

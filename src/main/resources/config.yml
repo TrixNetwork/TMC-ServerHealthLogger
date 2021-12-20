@@ -1,5 +1,9 @@
-# mongodb connection uri
-uri: ""
+mongodb:
+  # mongodb connection uri
+  uri: ""
+  # mongodb database name and collection name to use
+  db_name: "the_oracle_n"
+  collection_name: "server_health_data"
 
 # server name - DO NOT CHANGE ONCE SET
 server_name: ""

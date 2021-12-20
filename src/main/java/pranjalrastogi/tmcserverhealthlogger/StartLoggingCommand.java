@@ -20,7 +20,7 @@ public class StartLoggingCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!this.loggingManager.getLog_runner().isCancelled()) {
             // not cancelled, don't do anything
-            sender.sendMessage("[TMCServerHealthLogger] Already running");
+            sender.sendMessage("[TMCServerHealthLogger] Already running.");
         } else {
             // cancel, to start
             long initTime = 0L;

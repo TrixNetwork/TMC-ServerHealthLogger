@@ -18,13 +18,12 @@ public final class TMCServerHealthLogger extends JavaPlugin {
         long initTime = 0L;
         long gap = 20 * 120;
         loggingManager.getLog_runner().runTaskTimer(this, initTime, gap);
-        this.getLogger().info("Plugin enabled, started logger.");
+        this.getLogger().info("=====\n Plugin enabled, started logger.\n=====");
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-
-        this.getLogger().info("Plugin disabled.");
+        this.getLogger().info("=====\n Plugin disabled, stopped logger.\n=====");
     }
 }

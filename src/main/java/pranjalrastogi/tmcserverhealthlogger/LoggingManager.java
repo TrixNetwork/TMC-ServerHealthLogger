@@ -18,16 +18,17 @@ public class LoggingManager {
     public LoggingManager(Plugin plugin) {
 
         FileConfiguration config = plugin.getConfig();
-        String uri = config.getString("uri");
+        String uri = config.getString("mongodb.uri");
 
         if (uri == null) {
-            plugin.getLogger().info("Big error why my URI broken!");
+            plugin.getLogger().info("My URI broken! Plugin will disable!");
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
         }
 
-        MongoClient mongoClient = MongoClients.create(Objects.requireNonNull(config.getString("uri")));
+        MongoClient mongoClient = MongoClients.create(Objects.requireNonNull(uri));
 
-        MongoDatabase database = mongoClient.getDatabase("the_oracle_n");
-        this.health_collection = database.getCollection("server_health_data");
+        MongoDatabase database = mongoClient.getDatabase(Objects.requireNonNull(config.getString("mongodb.db_name")));
+        this.health_collection = database.getCollection(Objects.requireNonNull(config.getString("mongodb.collection_name")));
         this.log_runner = new LoggingRunner(plugin, this.health_collection);
     }
 
