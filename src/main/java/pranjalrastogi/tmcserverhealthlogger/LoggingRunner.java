@@ -1,16 +1,26 @@
 package pranjalrastogi.tmcserverhealthlogger;
 
+import static com.mongodb.client.model.Filters.eq;
+import static java.util.Collections.singletonList;
+
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Updates;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.bson.BsonDateTime;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Objects;
 
 public class LoggingRunner extends BukkitRunnable {
@@ -71,12 +81,92 @@ public class LoggingRunner extends BukkitRunnable {
             }
         }
         catch (IOException e){
-            this.plugin.getLogger().info("Error, cancelling");
-            this.cancel();
+            this.plugin.getLogger().info("Error, returning. Message:\n" + e.getMessage());
+            return;
         }
 
         // get player count
         int playerCount = this.plugin.getServer().getOnlinePlayers().size();
+
+
+        // Sending to mongodb
+        Document doc = this.health_collection.find(eq("server.id", this.plugin.getConfig()
+                        .getString("petro.server_id")))
+                .sort(Sorts.descending("dt_start"))
+                .first();
+
+        if (doc == null) {
+            // This server_id has no documents at all
+            Document docMini = new Document()
+                    .append("tps", TPS)
+                    .append("memory", usedMemory)
+                    .append("ptero_mem", pteroMemory)
+                    .append("cpu", pteroCPU)
+                    .append("player_count", playerCount)
+                    .append("dt", new BsonDateTime(Instant.now().toEpochMilli()));
+            Document idDoc = new Document()
+                    .append("id", this.plugin.getConfig().getString("petro.server_id"))
+                    .append("name", this.plugin.getConfig().getString("server_name"));
+            Document docToWrite = new Document()
+                    .append("server", idDoc)
+                    .append("dt_start", new BsonDateTime(Instant.now().toEpochMilli()))
+                    .append("dt_end", new BsonDateTime(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                    .append("data", singletonList(docMini))
+                    .append("sum_tps", TPS)
+                    .append("sum_memory", usedMemory)
+                    .append("sum_ptero_mem", pteroMemory)
+                    .append("sum_cpu", pteroCPU)
+                    .append("data_count", 1);
+            this.health_collection.insertOne(docToWrite);
+        } else {
+            // found a document with the highest start_time
+            // check if document has expired (end_time <= now_time)
+            if ( ((Date) doc.get("dt_end")).compareTo(new Date()) <= 0) {
+                // end time is less or equal to now time
+                // document expired
+                // send new doc
+                Document docMini = new Document()
+                        .append("tps", TPS)
+                        .append("memory", usedMemory)
+                        .append("ptero_mem", pteroMemory)
+                        .append("cpu", pteroCPU)
+                        .append("player_count", playerCount)
+                        .append("dt", new BsonDateTime(Instant.now().toEpochMilli()));
+                Document idDoc = new Document()
+                        .append("id", this.plugin.getConfig().getString("petro.server_id"))
+                        .append("name", this.plugin.getConfig().getString("server_name"));
+                Document docToWrite = new Document()
+                        .append("server", idDoc)
+                        .append("dt_start", new BsonDateTime(Instant.now().toEpochMilli()))
+                        .append("dt_end", new BsonDateTime(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                        .append("data", singletonList(docMini))
+                        .append("sum_tps", TPS)
+                        .append("sum_memory", usedMemory)
+                        .append("sum_ptero_mem", pteroMemory)
+                        .append("sum_cpu", pteroCPU)
+                        .append("data_count", 1);
+                this.health_collection.insertOne(docToWrite);
+            }
+            else {
+                // last document hasn't expired, update it
+                Document docMini = new Document()
+                        .append("tps", TPS)
+                        .append("memory", usedMemory)
+                        .append("ptero_mem", pteroMemory)
+                        .append("cpu", pteroCPU)
+                        .append("player_count", playerCount)
+                        .append("dt", new BsonDateTime(Instant.now().toEpochMilli()));
+                Bson updates = Updates.combine(
+                        Updates.inc("sum_tps", TPS),
+                        Updates.inc("sum_memory", usedMemory),
+                        Updates.inc("sum_ptero_mem", pteroMemory),
+                        Updates.inc("sum_cpu", pteroCPU),
+                        Updates.inc("data_count", 1),
+                        Updates.addToSet("data", docMini)
+                );
+                this.health_collection.updateOne(eq("_id", doc.getObjectId("_id")), updates);
+            }
+        }
 
     }
 

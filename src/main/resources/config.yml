@@ -1,11 +1,14 @@
 # mongodb connection uri
 uri: ""
 
-# server name
+# server name - DO NOT CHANGE ONCE SET
 server_name: ""
 
 # Pterodactyl data
 petro:
   base_url: ""
+
+  # DON'T CHANGE THE SERVER_ID EVER
   server_id: ""
+
   api_key: ""
